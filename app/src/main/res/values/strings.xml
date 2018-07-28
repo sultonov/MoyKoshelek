@@ -6,4 +6,11 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="test_profile_name">Султонов Йулдошбой</string>
+    <string name="test_credit_card">Кредитная карта</string>
+    <string name="test_balance_amount">$ 85 000</string>
+    <string name="in_balance">На счету</string>
+    <string name="last_history">Последняя история</string>
+    <string name="add">Добавить</string>
+    <string name="all_actions">Все действии</string>
 </resources>

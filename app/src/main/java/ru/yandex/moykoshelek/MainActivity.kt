@@ -10,6 +10,14 @@ import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import android.text.Spannable
+import android.support.v4.content.ContextCompat
+import android.text.style.ForegroundColorSpan
+import android.text.style.TypefaceSpan
+import android.text.SpannableString
+import android.os.Build
+
+
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -18,17 +26,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
-
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
+        setActionBarTitle("Мой кошелёк")
     }
 
     override fun onBackPressed() {
@@ -50,7 +54,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         when (item.itemId) {
-            R.id.action_settings -> return true
+            R.id.action_add -> return true
             else -> return super.onOptionsItemSelected(item)
         }
     }
@@ -80,5 +84,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         drawer_layout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    fun setActionBarTitle(title: String) {
+        val s = SpannableString(title)
+        if (s.indexOf(' ') != -1) {
+            s.setSpan(ForegroundColorSpan(ContextCompat.getColor(applicationContext, R.color.toolbar_text_red)), 0, s.indexOf(' '), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            s.setSpan(ForegroundColorSpan(ContextCompat.getColor(applicationContext, R.color.toolbar_text_black)), s.indexOf(' '), s.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        else
+            s.setSpan(ForegroundColorSpan(ContextCompat.getColor(applicationContext, R.color.toolbar_text_black)), 0, s.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        supportActionBar?.title = s
     }
 }
