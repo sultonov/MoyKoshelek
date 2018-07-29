@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
+import android.support.v7.app.ActionBar
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.text.Spannable
@@ -11,32 +12,30 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import ru.yandex.moykoshelek.fragments.MainFragment
+import ru.yandex.moykoshelek.fragments.MenuFragment
 import ru.yandex.moykoshelek.utils.FragmentCodes
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity(){
+
+    private var isMenuShowed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
-        val toggle = ActionBarDrawerToggle(
-                this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        drawer_layout.addDrawerListener(toggle)
-        toggle.syncState()
-
-        nav_view.setNavigationItemSelectedListener(this)
+        toolbar.setNavigationIcon(R.drawable.ic_hamburger)
         setActionBarTitle("Мой кошелёк")
         this.showFragment(FragmentCodes.MAIN_FRAGMENT, false)
     }
 
     override fun onBackPressed() {
-        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-            drawer_layout.closeDrawer(GravityCompat.START)
+        if (isMenuShowed) {
+            showOrHideMenu()
         } else {
             super.onBackPressed()
         }
@@ -54,46 +53,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // as you specify a parent activity in AndroidManifest.xml.
         when (item.itemId) {
             R.id.action_add -> return true
+            android.R.id.home -> showOrHideMenu()
             else -> return super.onOptionsItemSelected(item)
         }
+        return true
     }
 
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
-        when (item.itemId) {
-            R.id.nav_camera -> {
-                // Handle the camera action
-            }
-            R.id.nav_gallery -> {
-
-            }
-            R.id.nav_slideshow -> {
-
-            }
-            R.id.nav_manage -> {
-
-            }
-            R.id.nav_share -> {
-
-            }
-            R.id.nav_send -> {
-
-            }
+    fun showOrHideMenu() {
+        if (isMenuShowed) {
+            toolbar.setNavigationIcon(R.drawable.ic_hamburger)
+            super.onBackPressed()
         }
-
-        drawer_layout.closeDrawer(GravityCompat.START)
-        return true
+        else {
+            toolbar.setNavigationIcon(android.R.drawable.ic_lock_lock)
+            showFragment(FragmentCodes.MENU_FRAGMENT, true)
+        }
+        isMenuShowed = !isMenuShowed
     }
 
     fun showFragment(fragmentCode: Int, addBackStack: Boolean) {
         this.hideKeyboard()
+        if (isMenuShowed) showOrHideMenu()
         var transaction = supportFragmentManager.beginTransaction()
         transaction = when (fragmentCode) {
             FragmentCodes.ADD_TRANSACTION_FRAGMENT -> {
                 transaction.add(R.id.frame_content, MainFragment())
             }
+            FragmentCodes.MENU_FRAGMENT -> {
+                transaction.add(R.id.frame_content, MenuFragment())
+            }
             else -> {
-                transaction.add(R.id.frame_content, MainFragment())
+                transaction.replace(R.id.frame_content, MainFragment())
             }
         }
         if (addBackStack)
