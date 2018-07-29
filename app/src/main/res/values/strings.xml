@@ -15,4 +15,8 @@
     <string name="all_actions">Все действии</string>
     <string name="test_card_number">4200 **** **** **65</string>
     <string name="test_date">02/21</string>
+    <string name="test_address">Red Square, Moscow, Russian Federation</string>
+    <string name="placeholder_description">Местоположение:</string>
+    <string name="test_transaction_date">27 илюль 2018 12:21</string>
+    <string name="time_description">Дата:</string>
 </resources>
