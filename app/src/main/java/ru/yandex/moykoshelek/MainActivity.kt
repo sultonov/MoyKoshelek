@@ -1,22 +1,20 @@
 package ru.yandex.moykoshelek
 
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
+import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
-import android.text.Spannable
-import android.support.v4.content.ContextCompat
-import android.text.style.ForegroundColorSpan
-import android.text.style.TypefaceSpan
-import android.text.SpannableString
-import android.os.Build
-
+import ru.yandex.moykoshelek.fragments.MainFragment
+import ru.yandex.moykoshelek.utils.FragmentCodes
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -33,6 +31,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
         setActionBarTitle("Мой кошелёк")
+        this.showFragment(FragmentCodes.MAIN_FRAGMENT, false)
     }
 
     override fun onBackPressed() {
@@ -86,14 +85,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
+    fun showFragment(fragmentCode: Int, addBackStack: Boolean) {
+        this.hideKeyboard()
+        var transaction = supportFragmentManager.beginTransaction()
+        transaction = when (fragmentCode) {
+            FragmentCodes.ADD_TRANSACTION_FRAGMENT -> {
+                transaction.add(R.id.frame_content, MainFragment())
+            }
+            else -> {
+                transaction.add(R.id.frame_content, MainFragment())
+            }
+        }
+        if (addBackStack)
+            transaction = transaction.addToBackStack("fragment$fragmentCode")
+        transaction.commit()
+    }
+
     fun setActionBarTitle(title: String) {
         val s = SpannableString(title)
         if (s.indexOf(' ') != -1) {
             s.setSpan(ForegroundColorSpan(ContextCompat.getColor(applicationContext, R.color.toolbar_text_red)), 0, s.indexOf(' '), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             s.setSpan(ForegroundColorSpan(ContextCompat.getColor(applicationContext, R.color.toolbar_text_black)), s.indexOf(' '), s.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-        else
-            s.setSpan(ForegroundColorSpan(ContextCompat.getColor(applicationContext, R.color.toolbar_text_black)), 0, s.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        } else
+            s.setSpan(ForegroundColorSpan(ContextCompat.getColor(applicationContext, R.color.colorAccent)), 0, s.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         supportActionBar?.title = s
     }
 }

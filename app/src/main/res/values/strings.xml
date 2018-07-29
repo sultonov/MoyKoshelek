@@ -13,4 +13,6 @@
     <string name="last_history">Последняя история</string>
     <string name="add">Добавить</string>
     <string name="all_actions">Все действии</string>
+    <string name="test_card_number">4200 **** **** **65</string>
+    <string name="test_date">02/21</string>
 </resources>
