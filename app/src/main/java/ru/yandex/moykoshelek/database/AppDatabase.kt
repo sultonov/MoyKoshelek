@@ -5,12 +5,15 @@ import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import ru.yandex.moykoshelek.database.dao.TransactionDataDao
+import ru.yandex.moykoshelek.database.dao.WalletDataDao
 import ru.yandex.moykoshelek.database.entities.TransactionData
+import ru.yandex.moykoshelek.database.entities.WalletData
 
-@Database(entities = arrayOf(TransactionData::class), version = 1)
+@Database(entities = [(TransactionData::class), (WalletData::class)], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun transactionDataDao(): TransactionDataDao
+    abstract fun walletDataDao(): WalletDataDao
 
     companion object {
         private var INSTANCE: AppDatabase? = null
@@ -18,7 +21,7 @@ abstract class AppDatabase : RoomDatabase() {
         fun getInstance(context: Context): AppDatabase? {
             if (INSTANCE == null) {
                 synchronized(TransactionData::class) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
+                    INSTANCE = Room.databaseBuilder(context.applicationContext,
                             AppDatabase::class.java, "app.db")
                             .build()
                 }

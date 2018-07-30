@@ -23,4 +23,17 @@
     <string name="statistics">Статистика</string>
     <string name="settings">Настройки</string>
     <string name="about">О приложении</string>
+    <string name="type_wallet">Тип кошелька</string>
+    <string name="currency">Валюта</string>
+
+    <string-array name="wallet_types">
+        <item>Наличные деньги</item>
+        <item>Кредитная карта</item>
+        <item>Банковский счет</item>
+        <item>Электронный кошелек</item>
+    </string-array>
+    <string-array name="currency_types">
+        <item>USD</item>
+        <item>RUB</item>
+    </string-array>
 </resources>

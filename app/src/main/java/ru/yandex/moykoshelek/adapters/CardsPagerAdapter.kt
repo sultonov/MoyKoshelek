@@ -8,12 +8,12 @@ import android.support.v4.view.PagerAdapter
 import android.view.View
 import android.widget.TextView
 import ru.yandex.moykoshelek.R
-import ru.yandex.moykoshelek.models.CardItem
+import ru.yandex.moykoshelek.database.entities.WalletData
 
 
 class CardsPagerAdapter : PagerAdapter(), CardAdapter {
     private val views: MutableList<CardView?>
-    private val data: MutableList<CardItem>
+    private val data: MutableList<WalletData>
     override var baseElevation: Float = 0.toFloat()
 
     init {
@@ -21,7 +21,7 @@ class CardsPagerAdapter : PagerAdapter(), CardAdapter {
         views = ArrayList()
     }
 
-    fun addCardItem(item: CardItem) {
+    fun addCardItem(item: WalletData) {
         views.add(null)
         data.add(item)
     }
@@ -63,14 +63,14 @@ class CardsPagerAdapter : PagerAdapter(), CardAdapter {
         views[position] = null
     }
 
-    private fun bind(item: CardItem, view: View) {
+    private fun bind(item: WalletData, view: View) {
         val cardName = view.findViewById(R.id.card_name) as TextView
         val cardNumber = view.findViewById(R.id.card_number) as TextView
         val cardBalance = view.findViewById(R.id.card_balance) as TextView
         val cardDate = view.findViewById(R.id.card_date) as TextView
         cardName.text = item.name
         cardNumber.text = item.number
-        cardBalance.text = item.balance
+        cardBalance.text = item.balance.toString()
         cardDate.text = item.date
     }
 

@@ -10,10 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import ru.yandex.moykoshelek.MainActivity
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.adapters.CardsPagerAdapter
 import ru.yandex.moykoshelek.adapters.MainListAdapter
 import ru.yandex.moykoshelek.database.entities.TransactionData
+import ru.yandex.moykoshelek.database.entities.WalletData
 import ru.yandex.moykoshelek.helpers.ShadowTransformer
 import ru.yandex.moykoshelek.models.CardItem
 
@@ -55,11 +57,7 @@ class MainFragment : Fragment() {
         tabLayout = view.findViewById(R.id.tab_dots) as TabLayout
         tabLayout.setupWithViewPager(viewPager, true)
         cardAdapter = CardsPagerAdapter()
-        cardAdapter.addCardItem(CardItem("SBERBANK", "$ 120 000","1234 **** **** **12", "12/18"))
-        cardAdapter.addCardItem(CardItem("SBERBANK", "$ 120 000","1234 **** **** **12", "12/18"))
-        cardAdapter.addCardItem(CardItem("SBERBANK", "$ 120 000","1234 **** **** **12", "12/18"))
-        cardAdapter.addCardItem(CardItem("SBERBANK", "$ 120 000","1234 **** **** **12", "12/18"))
-        cardAdapter.addCardItem(CardItem("SBERBANK", "$ 120 000","1234 **** **** **12", "12/18"))
+        fetchDataFromDb()
         cardShadowTransformer = ShadowTransformer(viewPager, cardAdapter)
         viewPager.adapter = cardAdapter
         viewPager.setPageTransformer(false, cardShadowTransformer)
@@ -67,5 +65,24 @@ class MainFragment : Fragment() {
         viewPager.clipToPadding = false
         viewPager.setPadding(96, 0, 96, 0)
         viewPager.pageMargin = 48
+    }
+
+    private fun fetchDataFromDb() {
+        val task = Runnable {
+            val data = (activity as MainActivity).appDb?.walletDataDao()?.getAll()
+            (activity as MainActivity).uiHandler.post {
+                if (data != null) {
+                    bindDataWithUi(data = data)
+                }
+            }
+        }
+        (activity as MainActivity).dbWorkerThread.postTask(task)
+    }
+
+    private fun bindDataWithUi(data: List<WalletData>) {
+        for (i in 0 until data.size){
+            cardAdapter.addCardItem(data[i])
+        }
+        cardAdapter.notifyDataSetChanged()
     }
 }

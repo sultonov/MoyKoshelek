@@ -1,11 +1,14 @@
 package ru.yandex.moykoshelek
 
+import android.content.DialogInterface
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.NavigationView
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBar
 import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.Spannable
 import android.text.SpannableString
@@ -15,8 +18,12 @@ import android.view.MenuItem
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import org.jetbrains.anko.selector
+import ru.yandex.moykoshelek.database.AppDatabase
+import ru.yandex.moykoshelek.fragments.AddWalletFragment
 import ru.yandex.moykoshelek.fragments.MainFragment
 import ru.yandex.moykoshelek.fragments.MenuFragment
+import ru.yandex.moykoshelek.utils.DbWorkerThread
 import ru.yandex.moykoshelek.utils.FragmentCodes
 
 
@@ -24,13 +31,29 @@ class MainActivity : AppCompatActivity(){
 
     private var isMenuShowed = false
 
+    var appDb: AppDatabase? = null
+    lateinit var dbWorkerThread: DbWorkerThread
+    val uiHandler = Handler()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         toolbar.setNavigationIcon(R.drawable.ic_hamburger)
         setActionBarTitle("Мой кошелёк")
+        appDb = AppDatabase.getInstance(this)
         this.showFragment(FragmentCodes.MAIN_FRAGMENT, false)
+    }
+
+    override fun onStart() {
+        dbWorkerThread = DbWorkerThread("dbWorkerThread")
+        dbWorkerThread.start()
+        super.onStart()
+    }
+
+    override fun onStop() {
+        dbWorkerThread.interrupt()
+        super.onStop()
     }
 
     override fun onBackPressed() {
@@ -52,11 +75,23 @@ class MainActivity : AppCompatActivity(){
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         when (item.itemId) {
-            R.id.action_add -> return true
+            R.id.action_add -> showSelectAddDialog()
             android.R.id.home -> showOrHideMenu()
             else -> return super.onOptionsItemSelected(item)
         }
         return true
+    }
+
+    private fun showSelectAddDialog() {
+        val array = arrayOf("Счет", "Доход/Расход")
+        selector("Выберите что добавить", array.toList()) { _, i ->
+            run {
+                when (i) {
+                    0 -> showFragment(FragmentCodes.ADD_WALLET_FRAGMENT, true)
+                    1 -> showFragment(FragmentCodes.ADD_TRANSACTION_FRAGMENT, true)
+                }
+            }
+        }
     }
 
     fun showOrHideMenu() {
@@ -77,7 +112,10 @@ class MainActivity : AppCompatActivity(){
         var transaction = supportFragmentManager.beginTransaction()
         transaction = when (fragmentCode) {
             FragmentCodes.ADD_TRANSACTION_FRAGMENT -> {
-                transaction.add(R.id.frame_content, MainFragment())
+                transaction.replace(R.id.frame_content, MainFragment())
+            }
+            FragmentCodes.ADD_WALLET_FRAGMENT -> {
+                transaction.replace(R.id.frame_content, AddWalletFragment())
             }
             FragmentCodes.MENU_FRAGMENT -> {
                 transaction.add(R.id.frame_content, MenuFragment())

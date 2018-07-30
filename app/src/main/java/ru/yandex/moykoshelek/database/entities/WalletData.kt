@@ -6,12 +6,13 @@ import ru.yandex.moykoshelek.toString
 
 @Entity(tableName = "wallets")
 data class WalletData(@PrimaryKey(autoGenerate = true) var id: Long?,
-                      @ColumnInfo(name = "name") var time: String,
+                      @ColumnInfo(name = "type") var type: Int,
+                      @ColumnInfo(name = "name") var name: String,
                       @ColumnInfo(name = "balance") var balance: Double,
-                      @ColumnInfo(name = "currency") var currency: String,
+                      @ColumnInfo(name = "currency") var currency: Int,
                       @ColumnInfo(name = "number") var number: String,
                       @ColumnInfo(name = "date") var date: String
 
 ){
-    constructor():this(null, getCurrentDateTime().toString("yyyy/MM/dd HH:mm:ss"),0.0,"RUB","","12/12")
+    constructor():this(null, 0, "",0.0,0,"","12/12")
 }
