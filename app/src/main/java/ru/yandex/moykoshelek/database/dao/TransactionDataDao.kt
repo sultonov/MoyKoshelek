@@ -11,6 +11,9 @@ interface TransactionDataDao {
     @Query("SELECT * from transactions")
     fun getAll(): List<TransactionData>
 
+    @Query("SELECT DISTINCT category FROM transactions")
+    fun getCategories(): List<String>
+
     @Insert()
     fun insert(weatherData: TransactionData)
 }

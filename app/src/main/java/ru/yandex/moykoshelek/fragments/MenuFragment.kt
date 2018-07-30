@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import ru.yandex.moykoshelek.MainActivity
+import ru.yandex.moykoshelek.activities.MainActivity
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.utils.FragmentCodes
 

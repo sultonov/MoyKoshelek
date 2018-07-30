@@ -6,9 +6,11 @@ import android.view.LayoutInflater
 import ru.yandex.moykoshelek.helpers.CardAdapter
 import android.support.v4.view.PagerAdapter
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.database.entities.WalletData
+import ru.yandex.moykoshelek.utils.CurrencyTypes
 
 
 class CardsPagerAdapter : PagerAdapter(), CardAdapter {
@@ -64,14 +66,22 @@ class CardsPagerAdapter : PagerAdapter(), CardAdapter {
     }
 
     private fun bind(item: WalletData, view: View) {
-        val cardName = view.findViewById(R.id.card_name) as TextView
-        val cardNumber = view.findViewById(R.id.card_number) as TextView
-        val cardBalance = view.findViewById(R.id.card_balance) as TextView
-        val cardDate = view.findViewById(R.id.card_date) as TextView
+        val cardBackground = view.findViewById<ImageView>(R.id.card_background)
+        val cardName = view.findViewById<TextView>(R.id.card_name)
+        val cardNumber = view.findViewById<TextView>(R.id.card_number)
+        val cardBalance = view.findViewById<TextView>(R.id.card_balance)
+        val cardDate = view.findViewById<TextView>(R.id.card_date)
         cardName.text = item.name
         cardNumber.text = item.number
-        cardBalance.text = item.balance.toString()
+        var currency = if (CurrencyTypes.USD == item.currency) "$ " else "\u20BD "
+        currency += item.balance.toString()
+        cardBalance.text = currency
         cardDate.text = item.date
+
+    }
+
+    fun getItem(currentItem: Int): WalletData {
+        return data[currentItem]
     }
 
 }

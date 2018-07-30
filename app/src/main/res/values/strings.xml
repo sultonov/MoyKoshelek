@@ -26,6 +26,17 @@
     <string name="type_wallet">Тип кошелька</string>
     <string name="currency">Валюта</string>
 
+    <string name="address_found">Адрес найден</string>
+    <string name="invalid_lat_long_used">Используемая недопустимая широта или долгота</string>
+    <string name="no_address_found">Извините, адрес не найден</string>
+    <string name="no_geocoder_available">Отсутствует доступный геокодер</string>
+    <string name="no_location_data_provided">Данные о местоположении отсутствуют</string>
+    <string name="service_not_available">К сожалению, услуга недоступна</string>
+
+    <string name="permission_denied_explanation">Разрешение было отклонено, но оно необходимо для ядра функциональность.</string>
+    <string name="permission_rationale">Требуется разрешение на размещение для основных функций</string>
+    <string name="category">Категория</string>
+
     <string-array name="wallet_types">
         <item>Наличные деньги</item>
         <item>Кредитная карта</item>

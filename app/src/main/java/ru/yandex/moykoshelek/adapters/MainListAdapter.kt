@@ -11,6 +11,7 @@ import android.widget.TextView
 import ru.yandex.moykoshelek.database.entities.TransactionData
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.helpers.expandablelayout.ExpandableLayout
+import ru.yandex.moykoshelek.utils.CurrencyTypes
 
 class MainListAdapter(var transactionList: List<TransactionData>, private val context: Context?): RecyclerView.Adapter<MainListAdapter.ViewHolder>() {
 
@@ -23,6 +24,12 @@ class MainListAdapter(var transactionList: List<TransactionData>, private val co
                 viewHolder.expandIcon.setImageResource(R.drawable.ic_arrow_down)
             }
         }
+        viewHolder.transactionTag.text = transactionList[position].category
+        //viewHolder.transactionCardName = transactionList[position].
+        val currency = (if (transactionList[position].currency == CurrencyTypes.USD) "$ " else "\u20BD " )  + transactionList[position].cost
+        viewHolder.transactionAmount.text = currency
+        viewHolder.transactionPlaceholder.text = transactionList[position].placeholder
+        viewHolder.transactionTime.text = transactionList[position].time
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {

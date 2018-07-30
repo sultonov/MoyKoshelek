@@ -7,9 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import ru.yandex.moykoshelek.MainActivity
+import ru.yandex.moykoshelek.activities.MainActivity
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.database.entities.WalletData
+import ru.yandex.moykoshelek.utils.FragmentCodes
 import ru.yandex.moykoshelek.utils.WalletTypes
 
 class AddWalletFragment : Fragment() {
@@ -43,8 +44,10 @@ class AddWalletFragment : Fragment() {
 
     private fun createWallet(view: View) {
         for (i in 0 until layout.childCount)
-            if (layout.getChildAt(i).visibility == View.VISIBLE && layout.getChildAt(i) is EditText && (layout.getChildAt(i) as EditText).text.isEmpty())
+            if (layout.getChildAt(i).visibility == View.VISIBLE && layout.getChildAt(i) is EditText && (layout.getChildAt(i) as EditText).text.isEmpty()) {
                 (layout.getChildAt(i) as EditText).error = "Пожалуйста, запольните полье"
+                return
+            }
         val wallet = WalletData()
         wallet.type = view.findViewById<Spinner>(R.id.wallet_type_spinner).selectedItemPosition
         wallet.currency = view.findViewById<Spinner>(R.id.wallet_currency_spinner).selectedItemPosition
@@ -57,6 +60,7 @@ class AddWalletFragment : Fragment() {
             else -> ""
         }
         insertWalletDataInDb(wallet)
+        (activity as MainActivity).showFragment(FragmentCodes.MAIN_FRAGMENT, false)
     }
 
     private fun insertWalletDataInDb(data: WalletData) {

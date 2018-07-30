@@ -1,8 +1,6 @@
 package ru.yandex.moykoshelek.database.dao
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.Query
+import android.arch.persistence.room.*
 import ru.yandex.moykoshelek.database.entities.WalletData
 
 @Dao
@@ -10,6 +8,9 @@ interface WalletDataDao {
     @Query("SELECT * from wallets")
     fun getAll(): List<WalletData>
 
-    @Insert()
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(walletData: WalletData)
+
+    @Update
+    fun update(wallet: WalletData)
 }

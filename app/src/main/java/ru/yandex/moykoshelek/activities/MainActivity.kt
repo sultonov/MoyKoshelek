@@ -1,58 +1,92 @@
-package ru.yandex.moykoshelek
+package ru.yandex.moykoshelek.activities
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Handler
-import android.support.design.widget.NavigationView
 import android.support.v4.content.ContextCompat
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBar
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_main.*
+import com.androidnetworking.AndroidNetworking
+import com.androidnetworking.error.ANError
+import com.androidnetworking.interfaces.JSONObjectRequestListener
+import com.treebo.internetavailabilitychecker.InternetAvailabilityChecker
+import com.treebo.internetavailabilitychecker.InternetConnectivityListener
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import org.jetbrains.anko.coroutines.experimental.bg
 import org.jetbrains.anko.selector
+import org.json.JSONObject
+import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.database.AppDatabase
+import ru.yandex.moykoshelek.fragments.AddTransactionFragment
 import ru.yandex.moykoshelek.fragments.AddWalletFragment
 import ru.yandex.moykoshelek.fragments.MainFragment
 import ru.yandex.moykoshelek.fragments.MenuFragment
+import ru.yandex.moykoshelek.helpers.CurrencyPref
+import ru.yandex.moykoshelek.hideKeyboard
 import ru.yandex.moykoshelek.utils.DbWorkerThread
 import ru.yandex.moykoshelek.utils.FragmentCodes
 
 
-class MainActivity : AppCompatActivity(){
+class MainActivity : AppCompatActivity(), InternetConnectivityListener {
 
     private var isMenuShowed = false
-
     var appDb: AppDatabase? = null
     lateinit var dbWorkerThread: DbWorkerThread
     val uiHandler = Handler()
+    private lateinit var internetAvailabilityChecker: InternetAvailabilityChecker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         toolbar.setNavigationIcon(R.drawable.ic_hamburger)
-        setActionBarTitle("Мой кошелёк")
         appDb = AppDatabase.getInstance(this)
+        onInternetConnectivityChanged(true)
         this.showFragment(FragmentCodes.MAIN_FRAGMENT, false)
+    }
+
+    override fun onInternetConnectivityChanged(isConnected: Boolean) {
+        if (isConnected) {
+            async(UI) {
+                bg {
+                    getCurrencyFromInternet()
+                }
+            }
+        }
+    }
+
+    private fun getCurrencyFromInternet() {
+        AndroidNetworking.get("https://free.currencyconverterapi.com/api/v6/convert?q=USD_RUB&compact=y")
+                .build()
+                .getAsJSONObject(object : JSONObjectRequestListener {
+                    override fun onResponse(response: JSONObject) {
+                        val currency: Float = response.getJSONObject("USD_RUB").getDouble("val").toFloat()
+                        CurrencyPref(this@MainActivity).setCurrentConvert(currency)
+                    }
+
+                    override fun onError(error: ANError) {
+                        Log.e("CurrencyError", error.errorBody)
+                    }
+                })
     }
 
     override fun onStart() {
         dbWorkerThread = DbWorkerThread("dbWorkerThread")
         dbWorkerThread.start()
+        internetAvailabilityChecker = InternetAvailabilityChecker.getInstance()
+        internetAvailabilityChecker.addInternetConnectivityListener(this)
         super.onStart()
     }
 
     override fun onStop() {
         dbWorkerThread.interrupt()
+        internetAvailabilityChecker.removeInternetConnectivityChangeListener(this)
         super.onStop()
     }
 
@@ -65,15 +99,11 @@ class MainActivity : AppCompatActivity(){
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         when (item.itemId) {
             R.id.action_add -> showSelectAddDialog()
             android.R.id.home -> showOrHideMenu()
@@ -98,8 +128,7 @@ class MainActivity : AppCompatActivity(){
         if (isMenuShowed) {
             toolbar.setNavigationIcon(R.drawable.ic_hamburger)
             super.onBackPressed()
-        }
-        else {
+        } else {
             toolbar.setNavigationIcon(android.R.drawable.ic_lock_lock)
             showFragment(FragmentCodes.MENU_FRAGMENT, true)
         }
@@ -112,15 +141,19 @@ class MainActivity : AppCompatActivity(){
         var transaction = supportFragmentManager.beginTransaction()
         transaction = when (fragmentCode) {
             FragmentCodes.ADD_TRANSACTION_FRAGMENT -> {
-                transaction.replace(R.id.frame_content, MainFragment())
+                setActionBarTitle("Добавить кошелек")
+                transaction.replace(R.id.frame_content, AddTransactionFragment())
             }
             FragmentCodes.ADD_WALLET_FRAGMENT -> {
+                setActionBarTitle("Добавить кошелек")
                 transaction.replace(R.id.frame_content, AddWalletFragment())
             }
             FragmentCodes.MENU_FRAGMENT -> {
+                setActionBarTitle("Мой меню")
                 transaction.add(R.id.frame_content, MenuFragment())
             }
             else -> {
+                setActionBarTitle("Мой кошелёк")
                 transaction.replace(R.id.frame_content, MainFragment())
             }
         }
@@ -129,7 +162,7 @@ class MainActivity : AppCompatActivity(){
         transaction.commit()
     }
 
-    fun setActionBarTitle(title: String) {
+    private fun setActionBarTitle(title: String) {
         val s = SpannableString(title)
         if (s.indexOf(' ') != -1) {
             s.setSpan(ForegroundColorSpan(ContextCompat.getColor(applicationContext, R.color.toolbar_text_red)), 0, s.indexOf(' '), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
