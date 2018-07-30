@@ -10,19 +10,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.TextView
 import ru.yandex.moykoshelek.activities.MainActivity
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.adapters.CardsPagerAdapter
 import ru.yandex.moykoshelek.adapters.MainListAdapter
 import ru.yandex.moykoshelek.database.entities.TransactionData
 import ru.yandex.moykoshelek.database.entities.WalletData
+import ru.yandex.moykoshelek.helpers.CurrencyPref
+import ru.yandex.moykoshelek.utils.CurrencyTypes
+import kotlin.math.round
 
 class MainFragment : Fragment() {
 
     private lateinit var viewPager: ViewPager
     private lateinit var tabLayout: TabLayout
     private lateinit var cardAdapter: CardsPagerAdapter
-    //private lateinit var cardShadowTransformer: ShadowTransformer
 
     private lateinit var transactionRV: RecyclerView
     private lateinit var transactionAdapter: MainListAdapter
@@ -71,13 +74,27 @@ class MainFragment : Fragment() {
             cardAdapter.addCardItem(data[i])
         }
         cardAdapter.notifyDataSetChanged()
-        //cardShadowTransformer = ShadowTransformer(viewPager, cardAdapter)
         viewPager.adapter = cardAdapter
-        //viewPager.setPageTransformer(false, cardShadowTransformer)
         viewPager.offscreenPageLimit = 3
         viewPager.clipToPadding = false
         viewPager.setPadding(96, 0, 96, 0)
         viewPager.pageMargin = 48
+
+        var sumOfDollar = 0.0
+        var sumOfRuble = 0.0
+        val curr = CurrencyPref(this.context!!).getCurrentConvert()
+        for (i in 0 until data.size){
+            if (data[i].currency == CurrencyTypes.USD){
+                sumOfDollar += data[i].balance
+                sumOfRuble += data[i].balance * curr
+            }
+            else {
+                sumOfDollar += data[i].balance / curr
+                sumOfRuble += data[i].balance
+            }
+        }
+        view.findViewById<TextView>(R.id.sum_amount_rub_tv).text = String.format("\u20BD %.2f", sumOfRuble)
+        view.findViewById<TextView>(R.id.sum_amount_usd_tv).text = String.format("$ %.2f", sumOfDollar)
     }
 
     private fun fetchDataFromDb(view: View) {

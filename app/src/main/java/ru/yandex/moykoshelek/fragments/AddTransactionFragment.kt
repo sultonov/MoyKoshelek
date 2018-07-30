@@ -13,6 +13,7 @@ import ru.yandex.moykoshelek.activities.MainActivity
 import ru.yandex.moykoshelek.R
 import ru.yandex.moykoshelek.adapters.CardsPagerAdapter
 import ru.yandex.moykoshelek.database.entities.TransactionData
+import ru.yandex.moykoshelek.helpers.CurrencyPref
 import ru.yandex.moykoshelek.utils.CurrencyTypes
 import ru.yandex.moykoshelek.utils.FragmentCodes
 import ru.yandex.moykoshelek.utils.TransactionTypes
@@ -61,15 +62,19 @@ class AddTransactionFragment : Fragment() {
         transaction.cost = view.findViewById<EditText>(R.id.transaction_amount).text.toString().toDouble()
         transaction.currency = view.findViewById<Spinner>(R.id.transaction_currency_spinner).selectedItemPosition
         transaction.placeholder = "Moscow, Russia"
-        transaction.typeTransaction = if(view.findViewById<RadioButton>(R.id.rub_radio).isSelected) CurrencyTypes.RUB else CurrencyTypes.USD
+        transaction.typeTransaction = if(view.findViewById<RadioButton>(R.id.in_radio).isChecked) TransactionTypes.IN else TransactionTypes.OUT
         val wallet = cardAdapter.getItem(view.findViewById<ViewPager>(R.id.cards_viewpager).currentItem)
         transaction.walletId = wallet.id?.toInt()
         transaction.category = view.findViewById<AutoCompleteTextView>(R.id.transaction_category).text.toString()
         insertTransactionDataInDb(transaction)
+        var balanceChange = transaction.cost
+        val curr = CurrencyPref(this.context!!).getCurrentConvert()
+        if (wallet.currency != transaction.currency)
+            balanceChange = if(transaction.currency == CurrencyTypes.USD) transaction.cost * curr else transaction.cost / curr
         if (transaction.typeTransaction == TransactionTypes.IN)
-            wallet.balance += if (wallet.currency == transaction.currency) transaction.cost else transaction.cost
+            wallet.balance += balanceChange
         else
-            wallet.balance += if (wallet.currency == transaction.currency) transaction.cost else transaction.cost
+            wallet.balance -= balanceChange
         val task = Runnable { (activity as MainActivity).appDb?.walletDataDao()?.update(wallet) }
         (activity as MainActivity).dbWorkerThread.postTask(task)
         (activity as MainActivity).showFragment(FragmentCodes.MAIN_FRAGMENT, false)

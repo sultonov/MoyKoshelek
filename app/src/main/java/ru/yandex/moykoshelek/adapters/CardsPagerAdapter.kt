@@ -74,7 +74,7 @@ class CardsPagerAdapter : PagerAdapter(), CardAdapter {
         cardName.text = item.name
         cardNumber.text = item.number
         var currency = if (CurrencyTypes.USD == item.currency) "$ " else "\u20BD "
-        currency += item.balance.toString()
+        currency += String.format("%.2f", item.balance)
         cardBalance.text = currency
         cardDate.text = item.date
 

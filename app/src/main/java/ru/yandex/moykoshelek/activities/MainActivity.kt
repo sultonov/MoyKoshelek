@@ -129,7 +129,7 @@ class MainActivity : AppCompatActivity(), InternetConnectivityListener {
             toolbar.setNavigationIcon(R.drawable.ic_hamburger)
             super.onBackPressed()
         } else {
-            toolbar.setNavigationIcon(android.R.drawable.ic_lock_lock)
+            toolbar.setNavigationIcon(R.drawable.ic_exit)
             showFragment(FragmentCodes.MENU_FRAGMENT, true)
         }
         isMenuShowed = !isMenuShowed

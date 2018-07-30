@@ -36,7 +36,7 @@
             app:layout_constraintTop_toBottomOf="@id/tab_dots">
 
             <RadioButton
-                android:id="@+id/usd_radio"
+                android:id="@+id/out_radio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
@@ -47,7 +47,7 @@
                 android:textAlignment="center" />
 
             <RadioButton
-                android:id="@+id/rub_radio"
+                android:id="@+id/in_radio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
